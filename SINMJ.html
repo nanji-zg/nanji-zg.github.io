@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SINMJ</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css"
+      rel="stylesheet"
+    />
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              primary: "#4F46E5",
+              intelligence: {
+                DEFAULT: "#3B82F6", // 中等深度
+                light: "#DBEAFE", // 减少动画
+                dark: "#2563EB", // 增加动画
+              },
+              strength: {
+                DEFAULT: "#EF4444", // 中等深度
+                light: "#FEE2E2", // 减少动画
+                dark: "#DC2626", // 增加动画
+              },
+              dark: "#1F2937",
+            },
+            fontFamily: {
+              inter: ["Inter", "sans-serif"],
+            },
+          },
+        },
+      };
+    </script>
+    <style type="text/tailwindcss">
+      @layer utilities {
+        .content-auto {
+          content-visibility: auto;
+        }
+        .text-shadow {
+          text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .counter-animation {
+          transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .btn-disabled {
+          opacity: 0.65;
+          cursor: not-allowed;
+        }
+        .counter-container {
+          min-height: 180px;
+        }
+      }
+    </style>
+  </head>
+  <body
+    class="bg-gradient-to-br from-slate-50 to-slate-100 min-h-screen font-inter text-dark"
+  >
+    <div class="container mx-auto px-4 py-12 max-w-4xl">
+      <!-- 标题区域 -->
+      <header class="text-center mb-12">
+        <h1
+          class="text-[clamp(2rem,5vw,3.5rem)] font-bold text-primary mb-4 text-shadow"
+        >
+          <i class="fa fa-bolt mr-3"></i>SINMJ面板
+        <!-- <p class="text-slate-600 text-lg max-w-2xl mx-auto">
+          提升<strong class="text-intelligence">智力</strong>和<strong
+            class="text-strength"
+            >体力</strong
+          >吧
+        </p> -->
+      </header>
+
+      <!-- 主计数器区域 -->
+      <main
+        class="bg-white rounded-2xl shadow-xl p-8 mb-12 transform hover:shadow-2xl transition-all duration-300"
+      >
+        <div
+          id="counter-container"
+          class="grid grid-cols-1 md:grid-cols-2 gap-8"
+        >
+          <!-- 智力 -->
+          <div
+            class="flex flex-col items-center justify-center p-4 border-r md:border-r-2 border-slate-200"
+          >
+            <div class="text-center mb-4">
+              <div
+                class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-intelligence/10 mb-2"
+              >
+                <i class="fa fa-lightbulb-o text-intelligence text-xl"></i>
+              </div>
+              <h2 class="text-xl font-semibold text-intelligence">智力</h2>
+            </div>
+            <div
+              class="relative w-full counter-container mb-6 flex flex-col items-center"
+            >
+              <div
+                id="intelligence-number"
+                class="text-[clamp(2.5rem,8vw,5rem)] font-bold text-intelligence counter-animation"
+              >
+                1.00
+              </div>
+              <div
+                id="intelligence-last-update"
+                class="text-slate-500 text-sm absolute bottom-0 left-0 right-0 text-center"
+              >
+                上次更新: 从未
+              </div>
+            </div>
+            <div class="w-full flex gap-3">
+              <button
+                id="intelligence-decrease-btn"
+                class="flex-1 px-4 py-3 bg-intelligence-light hover:bg-intelligence-light/80 text-intelligence rounded-lg shadow-md hover:shadow-lg transition-all duration-300"
+              >
+                降
+              </button>
+              <button
+                id="intelligence-increase-btn"
+                class="flex-1 px-4 py-3 bg-intelligence hover:bg-intelligence/90 text-white rounded-lg shadow-md hover:shadow-lg transition-all duration-300"
+              >
+                升
+              </button>
+            </div>
+          </div>
+
+          <!-- 体力 -->
+          <div class="flex flex-col items-center justify-center p-4">
+            <div class="text-center mb-4">
+              <div
+                class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-strength/10 mb-2"
+              >
+                <i class="fa fa-bullseye text-strength text-xl"></i>
+              </div>
+              <h2 class="text-xl font-semibold text-strength">体力</h2>
+            </div>
+            <div
+              class="relative w-full counter-container mb-6 flex flex-col items-center"
+            >
+              <div
+                id="strength-number"
+                class="text-[clamp(2.5rem,8vw,5rem)] font-bold text-strength counter-animation"
+              >
+                1.00
+              </div>
+              <div
+                id="strength-last-update"
+                class="text-slate-500 text-sm absolute bottom-0 left-0 right-0 text-center"
+              >
+                上次更新: 从未
+              </div>
+            </div>
+            <div class="w-full flex gap-3">
+              <button
+                id="strength-decrease-btn"
+                class="flex-1 px-4 py-3 bg-strength-light hover:bg-strength-light/80 text-strength rounded-lg shadow-md hover:shadow-lg transition-all duration-300"
+              >
+                降
+              </button>
+              <button
+                id="strength-increase-btn"
+                class="flex-1 px-4 py-3 bg-strength hover:bg-strength/90 text-white rounded-lg shadow-md hover:shadow-lg transition-all duration-300"
+              >
+                升
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="text-center mt-8">
+          <p id="next-update" class="text-slate-600 mb-2">
+            <i class="fa fa-clock-o mr-2"></i>下次属性衰退: 计算中...
+          </p>
+          <p id="days-since-start" class="text-slate-500 text-sm">
+            <i class="fa fa-calendar mr-2"></i>已记录天数:
+            <span id="days-count">0</span>
+          </p>
+        </div>
+      </main>
+
+      <!-- 说明区域 -->
+      <section
+        class="bg-white/80 backdrop-blur-sm rounded-xl shadow-lg p-6 mb-8"
+      >
+        <h2 class="text-xl font-semibold text-slate-800 mb-4 flex items-center">
+          <i class="fa fa-info-circle text-primary mr-2"></i>使用说明
+        </h2>
+        <ul class="space-y-2 text-slate-600">
+          <li class="flex items-start">
+            <i class="fa fa-check-circle text-primary mt-1 mr-2"></i>
+            <span>
+                每天<strong class="text-intelligence">智力</strong>和
+                <strong class="text-strength">体力</strong>会自动流失
+                <strong> 0.05</strong>（默认为1）
+            </span>
+          </li>
+          <li class="flex items-start">
+            <i class="fa fa-check-circle text-primary mt-1 mr-2"></i>
+            <span>每学习复习或实操
+                <strong>2H</strong>，可以点击
+                <strong class="text-intelligence">智力</strong>按钮1次
+            </span>
+          </li>
+          <li class="flex items-start">
+            <i class="fa fa-check-circle text-primary mt-1 mr-2"></i>
+            <span
+              >每完成
+              <strong>20俯卧撑</strong>，
+              <strong>50仰卧起坐</strong>，
+              <strong>50高抬腿</strong>，
+              <strong>50凯格尔</strong>，
+              可以点击<strong class="text-strength">体力</strong>按钮一次
+              </span
+            >
+          </li>
+          <li class="flex items-start">
+            <i class="fa fa-check-circle text-primary mt-1 mr-2"></i>
+            <span>
+                <strong class="text-strength">体力</strong>突破
+                <strong >10</strong>时，
+                每日训练量增加
+                <strong>20%</strong>
+            </span>
+          </li>
+        </ul>
+      </section>
+
+      <!-- 页脚 -->
+      <footer class="text-center text-slate-500 text-sm mt-8">
+        <p>成长-拒绝迷茫，路漫漫其修远兮</p>
+      </footer>
+    </div>
+
+    <script>
+      // 存储数据的键名
+      const STORAGE_KEY = "attributeGrowth";
+      // 每日减少的值
+      const DAILY_DECREMENT = 0.05;
+      // 每次增加的值
+      const INCREASE_AMOUNT = 0.1;
+      // 每次减少的值
+      const DECREASE_AMOUNT = 0.05;
+      // 属性最小值
+      const MIN_VALUE = 1.0;
+
+      // 音频元素（需要替换为您的本地音频文件路径）
+      const audioFiles = {
+        intelligenceIncrease: new Audio("mlcg.mp3"), // 智力增加音效
+        intelligenceDecrease: new Audio("mlsb.mp3"), // 智力减少音效
+        strengthIncrease: new Audio("tcg.mp3"), // 体力增加音效
+        strengthDecrease: new Audio("tsb.mp3"), // 体力减少音效
+        dailyDecay: new Audio("sl.mp3"), // 每日衰退音效
+      };
+
+      // 确保音频可以播放
+      function ensureAudioCanPlay() {
+        Object.values(audioFiles).forEach((audio) => {
+          audio.preload = "auto";
+          // 尝试加载音频
+          audio.load();
+        });
+      }
+
+      // 播放音效
+      function playSound(audio) {
+        // 停止并重置当前播放
+        if (!audio.paused) {
+          audio.pause();
+          audio.currentTime = 0;
+        }
+
+        // 播放新的音频
+        audio.play().catch((error) => {
+          console.error("播放音效失败:", error);
+        });
+      }
+
+      // 初始化或获取存储的数据
+      function initializeData() {
+        let data = localStorage.getItem(STORAGE_KEY);
+
+        if (!data) {
+          // 如果没有存储的数据，创建新数据（初始值为1）
+          data = {
+            intelligence: MIN_VALUE,
+            strength: MIN_VALUE,
+            lastUpdate: new Date().toISOString(),
+            startDate: new Date().toISOString(),
+          };
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        } else {
+          data = JSON.parse(data);
+        }
+
+        // 确保属性值不低于最小值
+        data.intelligence = Math.max(
+          MIN_VALUE,
+          parseFloat(data.intelligence.toFixed(2))
+        );
+        data.strength = Math.max(
+          MIN_VALUE,
+          parseFloat(data.strength.toFixed(2))
+        );
+
+        return data;
+      }
+
+      // 检查并更新数值
+      function checkAndUpdateValues() {
+        const data = initializeData();
+        const lastUpdate = new Date(data.lastUpdate);
+        const today = new Date();
+
+        // 计算自上次更新以来的天数差
+        const timeDiff = today - lastUpdate;
+        const daysDiff = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
+
+        if (daysDiff >= 1) {
+          // 需要更新数值
+          const decrementAmount = DAILY_DECREMENT * daysDiff;
+
+          // 更新智力（确保不低于最小值）
+          data.intelligence = Math.max(
+            MIN_VALUE,
+            parseFloat((data.intelligence - decrementAmount).toFixed(2))
+          );
+
+          // 更新体力（确保不低于最小值）
+          data.strength = Math.max(
+            MIN_VALUE,
+            parseFloat((data.strength - decrementAmount).toFixed(2))
+          );
+
+          data.lastUpdate = today.toISOString();
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+
+          // 更新显示并添加动画效果（减少使用浅色）
+          updateDisplay(data);
+          document
+            .getElementById("intelligence-number")
+            .classList.add("scale-95", "text-intelligence-light");
+          document
+            .getElementById("strength-number")
+            .classList.add("scale-95", "text-strength-light");
+
+          // 播放每日衰退音效
+          playSound(audioFiles.dailyDecay);
+
+          setTimeout(() => {
+            document
+              .getElementById("intelligence-number")
+              .classList.remove("scale-95", "text-intelligence-light");
+            document
+              .getElementById("strength-number")
+              .classList.remove("scale-95", "text-strength-light");
+          }, 500);
+        } else {
+          // 不需要更新，直接显示当前值
+          updateDisplay(data);
+        }
+
+        // 更新下次更新时间显示
+        updateNextUpdateDisplay();
+
+        // 更新自开始以来的天数
+        updateDaysSinceStart(data);
+      }
+
+      // 更新显示
+      function updateDisplay(data) {
+        // 更新智力
+        const intelligenceElement = document.getElementById(
+          "intelligence-number"
+        );
+        const intelligenceLastUpdateElement = document.getElementById(
+          "intelligence-last-update"
+        );
+
+        // 平滑更新智力数字
+        const currentIntelligence = parseFloat(intelligenceElement.textContent);
+        const targetIntelligence = parseFloat(data.intelligence.toFixed(2));
+
+        if (currentIntelligence !== targetIntelligence) {
+          animateNumberChange(
+            intelligenceElement,
+            currentIntelligence,
+            targetIntelligence
+          );
+        } else {
+          intelligenceElement.textContent = targetIntelligence.toFixed(2);
+        }
+
+        // 更新智力上次更新时间
+        const intelligenceLastUpdateDate = new Date(data.lastUpdate);
+        intelligenceLastUpdateElement.textContent = `上次更新: ${formatDate(
+          intelligenceLastUpdateDate
+        )}`;
+
+        // 更新体力
+        const strengthElement = document.getElementById("strength-number");
+        const strengthLastUpdateElement = document.getElementById(
+          "strength-last-update"
+        );
+
+        // 平滑更新体力数字
+        const currentStrength = parseFloat(strengthElement.textContent);
+        const targetStrength = parseFloat(data.strength.toFixed(2));
+
+        if (currentStrength !== targetStrength) {
+          animateNumberChange(strengthElement, currentStrength, targetStrength);
+        } else {
+          strengthElement.textContent = targetStrength.toFixed(2);
+        }
+
+        // 更新体力上次更新时间
+        const strengthLastUpdateDate = new Date(data.lastUpdate);
+        strengthLastUpdateElement.textContent = `上次更新: ${formatDate(
+          strengthLastUpdateDate
+        )}`;
+      }
+
+      // 数字变化动画
+      function animateNumberChange(element, currentValue, targetValue) {
+        let start = null;
+        const duration = 1000; // 动画持续时间（毫秒）
+
+        function animate(timestamp) {
+          if (!start) start = timestamp;
+          const progress = Math.min((timestamp - start) / duration, 1);
+          const easeProgress =
+            progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
+          const value = (
+            currentValue +
+            (targetValue - currentValue) * easeProgress
+          ).toFixed(2);
+
+          element.textContent = value;
+
+          if (progress < 1) {
+            requestAnimationFrame(animate);
+          } else {
+            element.textContent = targetValue.toFixed(2);
+          }
+        }
+
+        requestAnimationFrame(animate);
+      }
+
+      // 更新下次更新时间显示
+      function updateNextUpdateDisplay() {
+        const nextUpdateElement = document.getElementById("next-update");
+        const now = new Date();
+        const tomorrow = new Date(now);
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        tomorrow.setHours(0, 0, 0, 0);
+
+        const timeUntilUpdate = tomorrow - now;
+        const hours = Math.floor(timeUntilUpdate / (1000 * 60 * 60));
+        const minutes = Math.floor(
+          (timeUntilUpdate % (1000 * 60 * 60)) / (1000 * 60)
+        );
+        const seconds = Math.floor((timeUntilUpdate % (1000 * 60)) / 1000);
+
+        nextUpdateElement.innerHTML = `<i class="fa fa-clock-o mr-2"></i>下次属性衰退: ${hours}小时${minutes}分钟${seconds}秒后`;
+
+        // 每秒更新一次倒计时
+        setTimeout(updateNextUpdateDisplay, 1000);
+      }
+
+      // 更新自开始以来的天数
+      function updateDaysSinceStart(data) {
+        const startDate = new Date(data.startDate);
+        const today = new Date();
+        const timeDiff = today - startDate;
+        const daysDiff = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
+
+        document.getElementById("days-count").textContent = daysDiff;
+      }
+
+      // 格式化日期
+      function formatDate(date) {
+        return `${date.getFullYear()}-${(date.getMonth() + 1)
+          .toString()
+          .padStart(2, "0")}-${date
+          .getDate()
+          .toString()
+          .padStart(2, "0")} ${date
+          .getHours()
+          .toString()
+          .padStart(2, "0")}:${date.getMinutes().toString().padStart(2, "0")}`;
+      }
+
+      // 增加智力
+      function increaseIntelligence() {
+        const data = initializeData();
+        data.intelligence = parseFloat(
+          (data.intelligence + INCREASE_AMOUNT).toFixed(2)
+        );
+        data.lastUpdate = new Date().toISOString();
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+
+        // 更新显示并添加动画效果（增加使用深色）
+        updateDisplay(data);
+        document
+          .getElementById("intelligence-number")
+          .classList.add("scale-110", "text-intelligence-dark");
+
+        // 播放智力增加音效
+        playSound(audioFiles.intelligenceIncrease);
+
+        setTimeout(() => {
+          document
+            .getElementById("intelligence-number")
+            .classList.remove("scale-110", "text-intelligence-dark");
+        }, 500);
+      }
+
+      // 减少智力
+      function decreaseIntelligence() {
+        const data = initializeData();
+        // 确保减少后的值不低于最小值
+        data.intelligence = Math.max(
+          MIN_VALUE,
+          parseFloat((data.intelligence - DECREASE_AMOUNT).toFixed(2))
+        );
+        data.lastUpdate = new Date().toISOString();
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+
+        // 更新显示并添加动画效果（减少使用浅色）
+        updateDisplay(data);
+        document
+          .getElementById("intelligence-number")
+          .classList.add("scale-95", "text-intelligence-light");
+
+        // 播放智力减少音效
+        playSound(audioFiles.intelligenceDecrease);
+
+        setTimeout(() => {
+          document
+            .getElementById("intelligence-number")
+            .classList.remove("scale-95", "text-intelligence-light");
+        }, 500);
+      }
+
+      // 增加体力
+      function increaseStrength() {
+        const data = initializeData();
+        data.strength = parseFloat(
+          (data.strength + INCREASE_AMOUNT).toFixed(2)
+        );
+        data.lastUpdate = new Date().toISOString();
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+
+        // 更新显示并添加动画效果（增加使用深色）
+        updateDisplay(data);
+        document
+          .getElementById("strength-number")
+          .classList.add("scale-110", "text-strength-dark");
+
+        // 播放体力增加音效
+        playSound(audioFiles.strengthIncrease);
+
+        setTimeout(() => {
+          document
+            .getElementById("strength-number")
+            .classList.remove("scale-110", "text-strength-dark");
+        }, 500);
+      }
+
+      // 减少体力
+      function decreaseStrength() {
+        const data = initializeData();
+        // 确保减少后的值不低于最小值
+        data.strength = Math.max(
+          MIN_VALUE,
+          parseFloat((data.strength - DECREASE_AMOUNT).toFixed(2))
+        );
+        data.lastUpdate = new Date().toISOString();
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+
+        // 更新显示并添加动画效果（减少使用浅色）
+        updateDisplay(data);
+        document
+          .getElementById("strength-number")
+          .classList.add("scale-95", "text-strength-light");
+
+        // 播放体力减少音效
+        playSound(audioFiles.strengthDecrease);
+
+        setTimeout(() => {
+          document
+            .getElementById("strength-number")
+            .classList.remove("scale-95", "text-strength-light");
+        }, 500);
+      }
+
+      // 页面加载时初始化
+      document.addEventListener("DOMContentLoaded", () => {
+        // 初始化音频
+        ensureAudioCanPlay();
+
+        // 由于浏览器安全限制，音频需要用户交互后才能播放
+        document.addEventListener(
+          "click",
+          () => {
+            // 尝试播放一个无声音频以解锁
+            const silentAudio = new Audio(
+              "data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA="
+            );
+            silentAudio
+              .play()
+              .then(() => {
+                console.log("音频播放已解锁");
+              })
+              .catch((error) => {
+                console.error("音频播放解锁失败:", error);
+              });
+          },
+          { once: true }
+        );
+
+        checkAndUpdateValues();
+
+        // 设置按钮事件
+        document
+          .getElementById("intelligence-increase-btn")
+          .addEventListener("click", increaseIntelligence);
+        document
+          .getElementById("intelligence-decrease-btn")
+          .addEventListener("click", decreaseIntelligence);
+        document
+          .getElementById("strength-increase-btn")
+          .addEventListener("click", increaseStrength);
+        document
+          .getElementById("strength-decrease-btn")
+          .addEventListener("click", decreaseStrength);
+      });
+    </script>
+  </body>
+</html>
